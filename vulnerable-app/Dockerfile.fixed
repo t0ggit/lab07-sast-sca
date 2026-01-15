@@ -1,0 +1,56 @@
+# ==========================================
+# Multi-stage build для минимизации размера образа
+# ==========================================
+
+# Stage 1: Builder - установка зависимостей
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Копируем только requirements.txt для кеширования слоя
+COPY requirements.txt .
+
+# Устанавливаем зависимости в user директорию
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+
+# ==========================================
+# Stage 2: Runtime - финальный образ
+# ==========================================
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# ИСПРАВЛЕНИЕ: Создаём non-root пользователя (CKV_DOCKER_2, CKV_DOCKER_8)
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Копируем зависимости из builder stage
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Копируем исходники приложения
+COPY --chown=appuser:appuser app_fixed.py /app/app.py
+COPY --chown=appuser:appuser config.yaml /app/
+
+# ИСПРАВЛЕНИЕ: Переключаемся на non-root пользователя (CKV_DOCKER_8)
+USER appuser
+
+# Добавляем .local/bin в PATH для доступа к установленным пакетам
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# ИСПРАВЛЕНИЕ: Убираем секреты из ENV (CKV_DOCKER_12)
+# Секреты должны передаваться через Docker secrets или volumes
+# ENV FLASK_ENV=development  # УДАЛЕНО
+# ENV DEBUG=true             # УДАЛЕНО
+
+# Exposing порт приложения
+EXPOSE 8080
+
+# ИСПРАВЛЕНИЕ: Добавляем HEALTHCHECK (CKV_DOCKER_10)
+# Проверяет доступность приложения каждые 30 секунд
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/')" || exit 1
+
+# Запуск приложения
+CMD ["python", "app.py"]

@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  vulnerable-app:
+    build:
+      context: ./vulnerable-app
+      dockerfile: Dockerfile.fixed
+    ports:
+      - "8080:8080"
+
+    # ИСПРАВЛЕНИЕ: Убираем hardcoded секреты из environment (CKV_DOCKER_12)
+    # Используем .env файл или Docker secrets
+    environment:
+      - DB_USER=${DB_USER:-admin}
+      # DB_PASSWORD должен передаваться через secrets, но для демо используем env var
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      # Удалены: FLASK_ENV=development, DEBUG=true
+
+    # ИСПРАВЛЕНИЕ: Добавляем security options (CKV_DOCKER_13)
+    security_opt:
+      - no-new-privileges:true  # запрещаем повышение привилегий через setuid
+
+    # ИСПРАВЛЕНИЕ: Ограничиваем capabilities (CKV_DOCKER_14)
+    cap_drop:
+      - ALL  # удаляем все capabilities
+    cap_add:
+      - NET_BIND_SERVICE  # только возможность биндить порты < 1024 (не требуется для 8080)
+
+    # ОПЦИОНАЛЬНО: read-only root filesystem (требует volume для временных файлов)
+    # read_only: true
+    # volumes:
+    #   - /tmp
+
+    # Рестарт политика
+    restart: unless-stopped
+
+    # Ограничения ресурсов (опционально, но рекомендуется)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+# ОПЦИОНАЛЬНО: Использование Docker secrets (для production)
+# secrets:
+#   db_password:
+#     file: ./secrets/db_password.txt
+#
+# services:
+#   vulnerable-app:
+#     secrets:
+#       - db_password
+#     environment:
+#       - DB_PASSWORD_FILE=/run/secrets/db_password

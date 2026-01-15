@@ -1,0 +1,49 @@
+# ИСПРАВЛЕННЫЕ ВЕРСИИ Python зависимостей (устранены CVE)
+
+# Web framework
+Flask==3.0.0          # было 2.0.1 - обновлено для устранения CVE-2023-30861
+Werkzeug==3.0.1       # было 2.0.3 - security updates
+Jinja2==3.1.2         # было 3.0.1 - security updates
+MarkupSafe==2.1.3     # было 2.0.1 - для XSS protection
+itsdangerous==2.1.2   # было 2.0.1
+click==8.1.7          # было 8.0.1
+
+# WSGI server
+gunicorn==21.2.0      # было 20.1.0 - security and stability updates
+
+# Database
+SQLAlchemy==2.0.23    # было 1.3.23 - множество security fixes
+
+# HTTP library
+requests==2.31.0      # было 2.19.1 - CVE-2018-18074 (SSRF) исправлен
+urllib3==2.1.0        # было 1.23 - множество CVE исправлено
+chardet==5.2.0        # было 3.0.4
+idna==3.6             # было 2.7
+certifi==2023.11.17   # было 2018.4.16 - устаревшие корневые сертификаты
+
+# YAML parsing
+PyYAML==6.0.1         # было 5.3.1 - CVE-2020-14343 (arbitrary code execution) исправлен
+
+# JWT
+pyjwt==2.8.0          # было 1.7.1 - CVE-2022-29217 (key confusion) исправлен
+
+# Cryptography
+cryptography==41.0.7  # было 3.2 - множество security updates
+
+# Django (если используется)
+Django==4.2.8         # было 2.2.0 - множество CVE исправлено (SQL injection, XSS, и др.)
+
+# SSH
+paramiko==3.4.0       # было 2.4.1 - CVE-2018-1000805 (auth bypass) исправлен
+
+# Utilities
+six==1.16.0           # было 1.15.0
+pytz==2023.3.post1    # для timezone support
+sqlparse==0.4.4       # для Django
+
+# Additional security packages
+bcrypt==4.1.2         # для безопасного хеширования паролей
+pynacl==1.5.0         # для криптографии
+pyasn1==0.5.1         # для ASN.1
+cffi==1.16.0          # для cryptography
+pycparser==2.21       # для cffi

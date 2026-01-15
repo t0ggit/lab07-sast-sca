@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>lab07</groupId>
+    <artifactId>sca-demo-fixed</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>sca-demo-fixed</name>
+    <description>ИСПРАВЛЕННЫЕ версии зависимостей без CVE</description>
+
+    <dependencies>
+        <!-- ИСПРАВЛЕНИЕ: Обновлена версия Groovy (было 2.1.6) -->
+        <!-- CVE-2015-3253, CVE-2016-6814 исправлены -->
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>4.0.15</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- ИСПРАВЛЕНИЕ: Обновлена версия Jackson (было 2.4.6) -->
+        <!-- Множество CVE по unsafe deserialization исправлены -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>2.16.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.16.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.16.0</version>
+        </dependency>
+
+        <!-- ИСПРАВЛЕНИЕ: Заменён на современный Apache HttpComponents (было commons-httpclient 3.1) -->
+        <!-- commons-httpclient deprecated и содержит CVE-2012-5783 (SSL/TLS bypass) -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.3</version>
+        </dependency>
+
+        <!-- ИСПРАВЛЕНИЕ: Обновлен commons-codec (было 1.2) -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+
+        <!-- commons-logging обновлён -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>9.0.7</version>
+                <configuration>
+                    <format>ALL</format>
+                    <outputDirectory>${project.basedir}/dependency-check-report-fixed</outputDirectory>
+                    <!-- Fail build если найдены CVSS >= 7.0 (High) -->
+                    <failBuildOnCVSS>7.0</failBuildOnCVSS>
+                    <autoUpdate>false</autoUpdate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
